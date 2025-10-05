@@ -21,12 +21,20 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Grant execute permission for gradlew
+    - name: Setup Gradle Wrapper
+      uses: gradle/wrapper-validation-action@v1
+      
+    - name: Make gradlew executable
       run: chmod +x gradlew
       
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug
+    - name: Validate Gradle wrapper
+      uses: gradle/gradle-build-action@v2
       
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: assembleDebug
+        
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
