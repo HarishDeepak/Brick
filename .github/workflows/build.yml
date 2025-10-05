@@ -3,7 +3,6 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,21 +33,21 @@ jobs:
     - name: Generate Gradle Wrapper
       run: |
         # Download and setup Gradle
-        wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip
-        unzip -q gradle-8.4-bin.zip
-        
+        wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip
+        unzip -q gradle-8.7-bin.zip
+ 
         # Generate wrapper files
-        gradle-8.4/bin/gradle wrapper --gradle-version 8.4
-        
+        gradle-8.7/bin/gradle wrapper --gradle-version 8.7
+ 
         # Make gradlew executable
         chmod +x gradlew
-        
+ 
     - name: Accept Android SDK licenses
       run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-      
+ 
     - name: Build Debug APK
       run: ./gradlew assembleDebug --no-daemon --stacktrace
-      
+ 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
