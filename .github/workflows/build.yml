@@ -21,21 +21,37 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Install Gradle
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Generate Gradle Wrapper
       run: |
-        wget https://services.gradle.org/distributions/gradle-8.4-bin.zip
-        unzip gradle-8.4-bin.zip
-        export PATH=$PATH:$PWD/gradle-8.4/bin
-        gradle wrapper
+        # Download and setup Gradle
+        wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip
+        unzip -q gradle-8.4-bin.zip
         
-    - name: Make gradlew executable
-      run: chmod +x gradlew
+        # Generate wrapper files
+        gradle-8.4/bin/gradle wrapper --gradle-version 8.4
+        
+        # Make gradlew executable
+        chmod +x gradlew
+        
+    - name: Accept Android SDK licenses
+      run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --no-daemon --stacktrace
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: SmartBrickNFC-debug
         path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 30
